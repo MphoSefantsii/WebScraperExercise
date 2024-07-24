@@ -24,16 +24,15 @@ function writeToFile(filename, data) {
 
 async function scrapeWebsite(url) {
   try {
-    console.log(`Fetching URL from: ${url}`) // show the url being fetched
-    const response = await fetch(url) // fetch all the HTML from provided url
-    const text = await response.text() // get the response HTML text
-    const dom = new JSDOM(text) // parse said text into a JSDOM object
-    const document = dom.window.document // extract the document object from JSDOM
+    console.log(`Fetching URL from: ${url}`)
+    const response = await fetch(url)
+    const text = await response.text()
+    const dom = new JSDOM(text)
+    const document = dom.window.document
 
     let fileContent = ""
     fileContent += "\n-Links-\n"
 
-    // Extract and add links to content "//selects all anchor "<a>" elements in the document"
     document.querySelectorAll("a").forEach((anchor) => {
       const href = anchor.href
       if (href) {
