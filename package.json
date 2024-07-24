@@ -1,6 +1,13 @@
 {
+  "name": "web-scraper",
+  "version": "1.0.0",
+  "type": "module",
   "dependencies": {
+    "csv-writer": "^1.6.0",
     "jsdom": "^24.1.1",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
   }
 }

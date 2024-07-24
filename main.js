@@ -1,5 +1,8 @@
 const fetch = require("node-fetch")
 const { JSDOM } = require("jsdom")
+const fs = require("fs")
+const path = require("path")
+const urlModule = require("url")
 
 function getURL() {
   const url = process.argv[2]
@@ -10,6 +13,15 @@ function getURL() {
   return url
 }
 
+function getFilename(url) {
+  const parsedUrl = urlModule.parse(url)
+  return parsedUrl.hostname + ".txt"
+}
+
+function writeToFile(filename, data) {
+  fs.writeFileSync(filename, data, "utf8")
+}
+
 async function scrapeWebsite(url) {
   try {
     console.log(`Fetching URL from: ${url}`) // show the url being fetched
@@ -18,27 +30,33 @@ async function scrapeWebsite(url) {
     const dom = new JSDOM(text) // parse said text into a JSDOM object
     const document = dom.window.document // extract the document object from JSDOM
 
-    const links = []
+    let fileContent = ""
+    fileContent += "\n-Links-\n"
 
-    // selects all anchor "<a>" elements in the document
+    // Extract and add links to content "//selects all anchor "<a>" elements in the document"
     document.querySelectorAll("a").forEach((anchor) => {
       const href = anchor.href
       if (href) {
-        links.push(href)
+        fileContent += `${href}\n` //links.push(href)
       }
     })
 
-    const images = []
+    fileContent += "\n-Images-\n"
 
-    // selects all anchor "<img>" elements in the document
+    // Extract and add image sources to content "//selects all anchor "<img>" elements in the document"
     document.querySelectorAll("img").forEach((img) => {
       const src = img.src
       if (src) {
-        images.push(src)
+        fileContent += `${src}\n` // images.push(src)
       }
     })
 
-    return { links, images }
+    //  return { links, images }
+
+    // Determine output filename and write content to file
+    const filename = path.join(__dirname, "output", getFilename(url))
+    writeToFile(filename, fileContent)
+    console.log(`Content written to ${filename}`)
   } catch (error) {
     console.error("Error fetching the URL:", error)
     process.exit(1)
@@ -46,8 +64,4 @@ async function scrapeWebsite(url) {
 }
 
 const url = getURL()
-
-scrapeWebsite(url).then((result) => {
-  console.log("Links:", result.links)
-  console.log("Images:", result.images)
-})
+scrapeWebsite(url)
