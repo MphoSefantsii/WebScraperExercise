@@ -85,7 +85,6 @@ async function scrapeWebsite(url) {
 }
 
 async function scrapeGamesDatabase() {
-  // Replace with the actual URL to scrape game data
   const url = "https://www.igdb.com/games/coming_soon"
   try {
     console.log(`Fetching games database from: ${url}`)
@@ -98,13 +97,13 @@ async function scrapeGamesDatabase() {
     let fileContent = "\n-Games Database-\n"
 
     document.querySelectorAll(".game-card").forEach((card) => {
-      const gameName = card.querySelector(".game-card__name")?.textContent || "N/A"
-      const genre = card.querySelector(".game-card__genre")?.textContent || "N/A"
-      const platforms = card.querySelector(".game-card__platforms")?.textContent || "N/A"
-      const releaseDate = card.querySelector(".game-card__release-date")?.textContent || "N/A"
-      const publisher = card.querySelector(".game-card__publisher")?.textContent || "N/A"
-      const profileImage = card.querySelector(".game-card__image")?.src || "N/A"
-      const trailerLink = card.querySelector(".game-card__trailer")?.href || "N/A"
+      const gameName = card.querySelector(".game-title")?.textContent || "N/A"
+      const genre = card.querySelector(".game-genre")?.textContent || "N/A"
+      const platforms = card.querySelector(".game-platforms")?.textContent || "N/A"
+      const releaseDate = card.querySelector(".release-date")?.textContent || "N/A"
+      const publisher = card.querySelector(".publisher")?.textContent || "N/A"
+      const profileImage = card.querySelector(".game-image")?.src || "N/A"
+      const trailerLink = card.querySelector(".game-trailer")?.href || "N/A"
 
       fileContent += `Name: ${gameName}, Genre: ${genre}, Platforms: ${platforms}, Release Date: ${releaseDate}, Publisher: ${publisher}, Profile Image: ${profileImage}, Trailer: ${trailerLink}\n`
     })
@@ -118,7 +117,36 @@ async function scrapeGamesDatabase() {
   }
 }
 
+async function scrapeEmailList() {
+  const url = "https://www.ibba.org/find-a-business-broker"
+  try {
+    console.log(`Fetching email list from: ${url}`)
+    const response = await fetch(url)
+    const text = await response.text()
+    const dom = new JSDOM(text, { virtualConsole: new (require("jsdom").VirtualConsole)() })
+
+    const document = dom.window.document
+
+    let fileContent = "\n-Email List-\n"
+
+    document.querySelectorAll(".findbroker-list-item").forEach((item) => {
+      const firmName = item.querySelector(".findbroker-firm-name")?.textContent || "N/A"
+      const contactName = item.querySelector(".findbroker-contact-name")?.textContent || "N/A"
+      const email = item.querySelector(".findbroker-email a")?.textContent || "N/A"
+
+      fileContent += `Firm: ${firmName}, Contact: ${contactName}, Email: ${email}\n`
+    })
+
+    const filename = path.join(outputDir, "email_list.txt")
+    writeToFile(filename, fileContent)
+    console.log(`Email list written to ${filename}`)
+  } catch (error) {
+    console.error("Error fetching the email list:", error.message)
+    process.exit(1)
+  }
+}
+
 const url = getURL()
 scrapeWebsite(url)
-
 scrapeGamesDatabase()
+scrapeEmailList()
